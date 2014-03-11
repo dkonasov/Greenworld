@@ -9,9 +9,17 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 
-//global project variables
+//global project variables and functions
 __projectname = 'Express test project';
 __homeurl = 'http://localhost:3000';
+var __site;
+getAppData=function(){
+var site=new Object();
+site.appname="Greenworld project";
+site.homeurl="localhost:3000";
+return site;
+
+}
 
 var app = express();
 
@@ -27,8 +35,8 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req, res, next){
-
-res.render ('404', { title: '404: Страница не найдена', request: __homeurl+req.url });
+__site=getAppData();
+res.render ('404', { title: '404: Страница не найдена', request: __site.homeurl+req.url });
 
 });
 
