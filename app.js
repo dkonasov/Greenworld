@@ -8,18 +8,13 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
+var mongodb=require('mongodb');
+var mongoose=require('mongoose');
 
 //global project variables and functions
 __projectname = 'Express test project';
 __homeurl = 'http://localhost:3000';
 var __site;
-getAppData=function(){
-var site=new Object();
-site.appname="Greenworld project";
-site.homeurl="localhost:3000";
-return site;
-
-}
 
 var app = express();
 
@@ -35,10 +30,21 @@ app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req, res, next){
-__site=getAppData();
-res.render ('404', { title: '404: Страница не найдена', request: __site.homeurl+req.url });
+var appinfo=require('./models/appinfo.js');
+failreq=req;
+appinfo.find({}, function(err, docs){
+
+
+if(!err){
+res.render('404', { title: 'qНе найдено', appinfo: docs, request: docs[0].homeurl+req.url});
+}
 
 });
+
+
+
+});
+
 
 // development only
 if ('development' == app.get('env')) {
@@ -47,6 +53,12 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+mongoose.connect('mongodb://127.0.0.1/greenworld');
+mongoose.connection.on('open', function(){
+
+console.log('mongoose connected');
+
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
